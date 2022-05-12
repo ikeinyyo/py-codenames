@@ -1,0 +1,1 @@
+from .WordNotFoundException import *
