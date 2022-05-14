@@ -67,17 +67,25 @@ class Board:
                            for word in self.__words_to_show[i*5:i*5+5]))
         cprint('=' * (self.__max_word_len*5+2), 'cyan')
 
+    def get_available_words(self):
+        return {
+            'red': [word for word in self.__red if not word in self.__selected_words],
+            'blue': [word for word in self.__blue if not word in self.__selected_words],
+            'neutral': [word for word in self.__neutral if not word in self.__selected_words],
+            'murderer': [word for word in self.__murderer if not word in self.__selected_words]
+        }
+
     def select_word(self, word, is_red_turn):
         if not word in self.__words:
             raise WordNotFoundException(word)
 
         self.__selected_words.append(word)
 
-        if all(elem in self.__selected_words for elem in self.__murderer):
+        if all(word in self.__selected_words for word in self.__murderer):
             return self.AnswerResponse.LOSE
-        if all(elem in self.__selected_words for elem in self.__red):
+        if all(word in self.__selected_words for word in self.__red):
             return self.AnswerResponse.RED_WIN
-        if all(elem in self.__selected_words for elem in self.__blue):
+        if all(word in self.__selected_words for word in self.__blue):
             return self.AnswerResponse.BLUE_WIN
         if not word in (self.__red if is_red_turn else self.__blue):
             return self.AnswerResponse.IS_INCORRECT

@@ -1,9 +1,8 @@
 import random
 from enum import Enum
 
-from termcolor import colored, cprint
-
-from helpers.console_toolkit.console_toolkit import clear_console
+from console_toolkit.console_toolkit import clear_console
+from termcolor import colored
 
 from .helpers.Board import Board
 from .helpers.StateMachine import StateMachine
@@ -18,10 +17,12 @@ class Codenames:
         LOSE = "LOSE"
         FINISH = "FINISH"
 
-    def __init__(self, words=None, language="es"):
-        self.__language = language
+    def __init__(self, bot=None, words=None, language="es", is_bot_captain=False):
+        self.__bot = bot
         self.__is_red_turn = random.randint(0, 1) == 1
         self.__board = Board(self.__is_red_turn, words, language)
+        self.__bot.set_board(self.__board)
+        self.__is_bot_captain = is_bot_captain
         self.__initialize_state_machine()
 
         self.__clue = ""
@@ -57,6 +58,11 @@ class Codenames:
             return self.States.CHANGE_TEAM
         return self.States.ANSWER
 
+    def __process_clue(self, clue):
+        [clue, ocurrencies] = clue.split(' ')
+        self.__clue = clue.upper()
+        self.__ocurrencies = int(ocurrencies)
+
     def __show_board(self, show_colors):
         clear_console()
         self.__board.show(show_colors)
@@ -65,11 +71,12 @@ class Codenames:
         try:
             clear_console()
             self.__show_board(True)
-            clue = input(colored(f"{'Red' if self.__is_red_turn else 'Blue'} captain, insert a clue: ",
-                                 'red' if self.__is_red_turn else 'blue'))
-            clue, ocurrencies = clue.split(' ')
-            self.__clue = clue.upper()
-            self.__ocurrencies = int(ocurrencies)
+            if self.__is_bot_captain:
+                clue = self.__bot.give_clue(self.__is_red_turn)
+            else:
+                clue = input(colored(f"{'Red' if self.__is_red_turn else 'Blue'} captain, insert a clue: ",
+                                     'red' if self.__is_red_turn else 'blue'))
+            self.__process_clue(clue)
             return self.States.ANSWER
         except:
             return self.States.CLUE
@@ -79,8 +86,11 @@ class Codenames:
             self.__show_board(False)
             print(
                 f"Current clue: {self.__clue} [{self.__current_answers}/{self.__ocurrencies}]")
-            answer = input(colored(f"{'Red' if self.__is_red_turn else 'Blue'} team, insert your awnser: ",
-                                   'red' if self.__is_red_turn else 'blue'))
+            if self.__is_bot_captain:
+                answer = input(colored(f"{'Red' if self.__is_red_turn else 'Blue'} team, insert your awnser: ",
+                                       'red' if self.__is_red_turn else 'blue'))
+            else:
+                answer = self.__bot.give_answer(self.__is_red_turn)
             return self.__process_answer(answer)
         except:
             return self.States.ANSWER
