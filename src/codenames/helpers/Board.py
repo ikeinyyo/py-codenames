@@ -27,6 +27,42 @@ class Board:
         self.__words_to_show = list(
             map(lambda word: word.center(self.__max_word_len), self.__words))
 
+    def show(self, show_color):
+        # TODO: Extract show to another class
+        cprint('Py-Codenames'.center(self.__max_word_len*5), 'cyan')
+        cprint('=' * (self.__max_word_len*5+2), 'cyan')
+        for i in range(5):
+            print(' '.join(colored(word.upper(), self.__select_color(word, show_color), attrs=self.__select_attrs(word))
+                           for word in self.__words_to_show[i*5:i*5+5]))
+        cprint('=' * (self.__max_word_len*5+2), 'cyan')
+
+    def get_available_words_per_team(self):
+        return {
+            'red': [word for word in self.__red if not word in self.__selected_words],
+            'blue': [word for word in self.__blue if not word in self.__selected_words],
+            'neutral': [word for word in self.__neutral if not word in self.__selected_words],
+            'murderer': [word for word in self.__murderer if not word in self.__selected_words]
+        }
+
+    def get_available_words(self):
+        return [word for word in self.__words if not word in self.__selected_words]
+
+    def select_word(self, word, is_red_turn):
+        if not word in self.__words or word in self.__selected_words:
+            raise WordNotFoundException(word)
+
+        self.__selected_words.append(word)
+
+        if all(word in self.__selected_words for word in self.__murderer):
+            return self.AnswerResponse.LOSE
+        if all(word in self.__selected_words for word in self.__red):
+            return self.AnswerResponse.RED_WIN
+        if all(word in self.__selected_words for word in self.__blue):
+            return self.AnswerResponse.BLUE_WIN
+        if not word in (self.__red if is_red_turn else self.__blue):
+            return self.AnswerResponse.IS_INCORRECT
+        return self.AnswerResponse.IS_CORRECT
+
     def __create_board(self, is_red_turn):
         self.__red = self.__words[:9 if is_red_turn else 8]
         self.__blue = self.__words[9 if is_red_turn else 8:17]
@@ -58,35 +94,3 @@ class Board:
         if word in self.__neutral:
             return 'yellow'
         return 'white'
-
-    def show(self, show_color):
-        cprint('Py-Codenames'.center(self.__max_word_len*5), 'cyan')
-        cprint('=' * (self.__max_word_len*5+2), 'cyan')
-        for i in range(5):
-            print(' '.join(colored(word.upper(), self.__select_color(word, show_color), attrs=self.__select_attrs(word))
-                           for word in self.__words_to_show[i*5:i*5+5]))
-        cprint('=' * (self.__max_word_len*5+2), 'cyan')
-
-    def get_available_words(self):
-        return {
-            'red': [word for word in self.__red if not word in self.__selected_words],
-            'blue': [word for word in self.__blue if not word in self.__selected_words],
-            'neutral': [word for word in self.__neutral if not word in self.__selected_words],
-            'murderer': [word for word in self.__murderer if not word in self.__selected_words]
-        }
-
-    def select_word(self, word, is_red_turn):
-        if not word in self.__words:
-            raise WordNotFoundException(word)
-
-        self.__selected_words.append(word)
-
-        if all(word in self.__selected_words for word in self.__murderer):
-            return self.AnswerResponse.LOSE
-        if all(word in self.__selected_words for word in self.__red):
-            return self.AnswerResponse.RED_WIN
-        if all(word in self.__selected_words for word in self.__blue):
-            return self.AnswerResponse.BLUE_WIN
-        if not word in (self.__red if is_red_turn else self.__blue):
-            return self.AnswerResponse.IS_INCORRECT
-        return self.AnswerResponse.IS_CORRECT
