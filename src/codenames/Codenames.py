@@ -127,7 +127,7 @@ class Codenames:
 
     def __get_answer(self):
         if not self.__current_bot.is_captain:
-            return self.__current_bot.give_answer()
+            return self.__current_bot.give_answer(self.__clue)
         self.__show_clue_message()
         return input(self.__create_request_answer_message())
 
