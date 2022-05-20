@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 
 
 class BotBase(ABC):
-    def __init__(self, is_captain=False):
+    def __init__(self, is_captain=False, language="es"):
         self._board = None
         self.is_captain = is_captain
         self.is_red = None
+        self.language = language
 
     def set_board(self, board):
         self._board = board
@@ -21,5 +22,5 @@ class BotBase(ABC):
         pass
 
     @abstractmethod
-    def give_answer(self):
+    def give_answer(self, clue):
         pass
