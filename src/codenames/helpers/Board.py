@@ -11,10 +11,11 @@ from .exceptions import WordNotFoundException
 class Board:
     class AnswerResponse(Enum):
         IS_CORRECT = 1
-        IS_INCORRECT = 2
-        RED_WIN = 3
-        BLUE_WIN = 4
-        LOSE = 5
+        IS_WRONG_TEAM = 2
+        IS_NEUTRAL = 3
+        RED_WIN = 4
+        BLUE_WIN = 5
+        LOSE = 6
 
     def __init__(self, is_red_turn, words=None, language="es"):
         if words and (not isinstance(words, list) or len(words) != 25):
@@ -27,14 +28,17 @@ class Board:
         self.__words_to_show = list(
             map(lambda word: word.center(self.__max_word_len), self.__words))
 
-    def show(self, show_color):
+    def show(self, show_color, logs):
         # TODO: Extract show to another class
-        cprint('Py-Codenames'.center(self.__max_word_len*5), 'cyan')
-        cprint('=' * (self.__max_word_len*5+2), 'cyan')
+        print(
+            ' '.join([colored('Py-Codenames'.center((self.__max_word_len+1)*5-1), 'cyan'), 'Logs']))
+        print(
+            ' '.join([colored('=' * ((self.__max_word_len+1)*5-1), 'cyan'), logs[0]]))
         for i in range(5):
-            print(' '.join(colored(word.upper(), self.__select_color(word, show_color), attrs=self.__select_attrs(word))
-                           for word in self.__words_to_show[i*5:i*5+5]))
-        cprint('=' * (self.__max_word_len*5+2), 'cyan')
+            print(' '.join([colored(word.upper(), self.__select_color(word, show_color), attrs=self.__select_attrs(word))
+                           for word in self.__words_to_show[i*5:i*5+5]] + [logs[i+1]]))
+        print(
+            ' '.join([colored('=' * ((self.__max_word_len+1)*5-1), 'cyan'), logs[6]]))
 
     def get_available_words_per_team(self):
         return {
@@ -59,8 +63,10 @@ class Board:
             return self.AnswerResponse.RED_WIN
         if all(word in self.__selected_words for word in self.__blue):
             return self.AnswerResponse.BLUE_WIN
+        if word in self.__neutral:
+            return self.AnswerResponse.IS_NEUTRAL
         if not word in (self.__red if is_red_turn else self.__blue):
-            return self.AnswerResponse.IS_INCORRECT
+            return self.AnswerResponse.IS_WRONG_TEAM
         return self.AnswerResponse.IS_CORRECT
 
     def __create_board(self, is_red_turn):

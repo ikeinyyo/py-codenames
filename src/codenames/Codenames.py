@@ -17,10 +17,13 @@ class Codenames:
         LOSE = "LOSE"
         FINISH = "FINISH"
 
+    MAX_LOGS_LINES = 7
+
     def __init__(self, red_bot=None, blue_bot=None, words=None, language="es"):
         self.__red_bot = red_bot
         self.__blue_bot = blue_bot
         self.__is_red_turn = random.randint(0, 1) == 1
+        self.__logs = [" "] * self.MAX_LOGS_LINES
         self.__initialize_board(words, language)
         self.__initialize_state_machine()
         self.__initialize_clue()
@@ -46,6 +49,7 @@ class Codenames:
         try:
             self.__show_board(True)
             clue = self.__get_clue()
+            self.__log(f"? {clue}")
             self.__process_clue(clue)
             return self.States.ANSWER
         except:
@@ -101,23 +105,34 @@ class Codenames:
 
     def __show_board(self, show_colors):
         clear_console()
-        self.__board.show(show_colors)
+        self.__board.show(show_colors, self.__logs)
 
     def __process_answer(self, answer):
         answer_reponse = self.__board.select_word(
             answer.lower(), self.__is_red_turn)
         self.__current_answers = self.__current_answers + 1
-
+        # TODO: Refactor state management
         if answer_reponse == Board.AnswerResponse.LOSE:
+            self.__log(answer, 'white')
             return self.States.LOSE
         if answer_reponse == Board.AnswerResponse.RED_WIN:
             self.__is_red_turn = True
+            self.__log(answer)
             return self.States.WIN
         if answer_reponse == Board.AnswerResponse.BLUE_WIN:
             self.__is_red_turn = False
+            self.__log(answer)
             return self.States.WIN
-        if answer_reponse == Board.AnswerResponse.IS_INCORRECT or self.__current_answers >= self.__ocurrencies:
+        if answer_reponse == Board.AnswerResponse.IS_WRONG_TEAM:
+            self.__log(answer, 'blue' if self.__is_red_turn else 'red')
             return self.States.CHANGE_TEAM
+        if answer_reponse == Board.AnswerResponse.IS_NEUTRAL:
+            self.__log(answer, "yellow")
+            return self.States.CHANGE_TEAM
+        if self.__current_answers >= self.__ocurrencies:
+            self.__log(answer)
+            return self.States.CHANGE_TEAM
+        self.__log(answer)
         return self.States.ANSWER
 
     def __get_clue(self):
@@ -168,3 +183,8 @@ class Codenames:
             colored(f"LOSE",
                     'red' if self.__is_red_turn else 'blue', attrs=['reverse']),
             colored(f"the game!", 'red' if self.__is_red_turn else 'blue')])
+
+    def __log(self, message, color=None):
+        color = color if color else 'red' if self.__is_red_turn else 'blue'
+        self.__logs.append(colored(message.upper(), color))
+        self.__logs = self.__logs[-self.MAX_LOGS_LINES:]
