@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class BotBase(ABC):
-    def __init__(self, is_captain=False, language="es"):
+    def __init__(self, is_captain=False, is_team_member=False, language="es"):
         self._board = None
         self.is_captain = is_captain
+        self.is_team_member = is_team_member
         self.is_red = None
         self.language = language
 

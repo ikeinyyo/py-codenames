@@ -47,8 +47,8 @@ import random
 
 
 class RandomBot(BotBase):
-    def __init__(self, is_captain=False, language="es"):
-        super().__init__(is_captain, language)
+    def __init__(self, is_captain=False, is_team_member=False, language="es"):
+        super().__init__(is_captain, is_team_member, language)
 
     def give_clue(self):
         board_words = self._board.get_available_words_per_team()
@@ -62,7 +62,7 @@ As you can see, the `BotBase` has a protected variable called `_board` that you 
 
 Also, the `BotBase` has a public variable `_is_red` to indicate if the bot is from the Red or Blue team.
 
-At the constructor method, you have to indicate the language and if the bot is a captain (team leader) or not.
+At the constructor method, you have to indicate the language and if the bot is a captain (team leader) or/and is bot is team member.
 
 ### How to run your bot?
 
@@ -74,8 +74,8 @@ from bots.DistanceBot import DistanceBot
 from codenames import Codenames
 
 if __name__ == '__main__':
-    red_bot = DistanceBot(is_captain=False)
-    blue_bot = DistanceBot(is_captain=False)
+    red_bot = DistanceBot(is_captain=False, is_team_member=True)
+    blue_bot = DistanceBot(is_captain=False, is_team_member=True)
     codenames = Codenames(
         red_bot=red_bot, blue_bot=blue_bot)
     codenames.play()
