@@ -5,8 +5,8 @@ from scipy.spatial import distance
 
 
 class DistanceBot(BotBase):
-    def __init__(self, is_captain=False, language="es"):
-        super().__init__(is_captain, language)
+    def __init__(self, is_captain=False, is_team_member=False, language="es"):
+        super().__init__(is_captain, is_team_member, language)
         self.__model = self.__load_model()
 
     def give_clue(self):
