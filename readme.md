@@ -73,17 +73,46 @@ from bots.RandomBot import RandomBot
 from bots.DistanceBot import DistanceBot
 from codenames import Codenames
 
-if __name__ == '__main__':
-    red_bot = DistanceBot(is_captain=False, is_team_member=True)
-    blue_bot = DistanceBot(is_captain=False, is_team_member=True)
+def run_game(log_game):
+    red_bot = RandomBot(is_team_member=True, is_captain=True)
+    blue_bot = DistanceBot(is_team_member=True)
     codenames = Codenames(
-        red_bot=red_bot, blue_bot=blue_bot)
+        red_bot=red_bot, blue_bot=blue_bot, log_history=log_game)
     codenames.play()
+    if log_game:
+        save_history(codenames.get_history())
 ```
 
 ### We are looking forward to your bot implementations
 
 You can contribute to this project with your own bot implementations. Just create a Pull Request!
+
+### Register games to train the new bots
+
+You can register your games using the Py-Codenames application. Just run the application using the `--log` argument.
+
+```py
+python main.py --log
+```
+
+When the human give a clue, the application will ask about the words the bot should to guess. It will create a JSON file with the game history. Let me show you an example:
+
+```json
+{
+    "id": "44aacbd6-6b8a-4b71-a1e8-a36426b15800",
+    "datetime": "2022-06-03T16:10:53Z",
+    "game": [
+        {
+            "team": "blue",
+            "clue": "marvel",
+            "occurrencies": 2,
+            "words": [
+                "hollywood",
+                "superhéroe"
+            ],
+            "board": {
+                "red": [
+```
 
 ## Authors
 

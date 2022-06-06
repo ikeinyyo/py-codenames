@@ -1,5 +1,7 @@
+import uuid
 import random
 from enum import Enum
+from datetime import datetime
 
 from console_toolkit.console_toolkit import clear_console
 from termcolor import colored, cprint
@@ -12,6 +14,7 @@ class Codenames:
     class States(Enum):
         ANSWER = "ANSWER"
         CLUE = "CLUE"
+        CREATE_LOG = "CREATE_LOG"
         CHANGE_TEAM = "CHANGE_TEAM"
         WIN = "WIN"
         LOSE = "LOSE"
@@ -19,23 +22,34 @@ class Codenames:
 
     MAX_LOGS_LINES = 7
 
-    def __init__(self, red_bot=None, blue_bot=None, words=None, language="es"):
+    def __init__(self, red_bot=None, blue_bot=None, words=None, log_history=False, language="es"):
         self.__red_bot = red_bot
         self.__blue_bot = blue_bot
         self.__is_red_turn = random.randint(0, 1) == 1
         self.__logs = [" "] * self.MAX_LOGS_LINES
+        self.__log_history = log_history
         self.__initialize_board(words, language)
         self.__initialize_state_machine()
         self.__initialize_clue()
+        self.__initialize_history()
 
     def play(self):
         clear_console()
         self.__initialize_bots()
         self.__state_machine.run()
 
+    def get_history(self):
+        return {
+            'id': str(uuid.uuid4()),
+            'datetime': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'game': self.__history
+        }
+
     def __initialize_state_machine(self):
         self.__state_machine = StateMachine()
         self.__state_machine.add_state(self.States.CLUE, self.__clue_phase)
+        self.__state_machine.add_state(
+            self.States.CREATE_LOG, self.__add_history_step)
         self.__state_machine.add_state(self.States.ANSWER, self.__answer_phase)
         self.__state_machine.add_state(
             self.States.CHANGE_TEAM, self.__change_team)
@@ -51,9 +65,34 @@ class Codenames:
             clue = self.__get_clue()
             self.__log(f"? {clue}")
             self.__process_clue(clue)
-            return self.States.ANSWER
+            return self.States.ANSWER if not self.__log_history or self.__current_bot.is_captain else self.States.CREATE_LOG
         except:
             return self.States.CLUE
+
+    def __add_history_step(self):
+        try:
+            self.__show_board(True)
+            self.__show_clue_message()
+            words = input(colored(
+                "Please, insert the words that bot should guess with your clue (split by ','): ", 'cyan'))
+            words = words.replace(' ', '').split(',')
+            board = self.__board.get_available_words_per_team()
+
+            if (len(words) != self.__ocurrencies or
+                    not all(word in (board['red'] if self.__is_red_turn else board['blue']) for word in words)):
+                raise Exception(
+                    "The words list has to have the same length that the clue number and the words has to be in the correct team board.")
+
+            self.__history.append({
+                'team': 'red' if self.__is_red_turn else 'blue',
+                'clue': self.__clue.lower(),
+                'occurrencies': self.__ocurrencies,
+                'words': words,
+                'board': board
+            })
+            return self.States.ANSWER
+        except:
+            return self.States.CREATE_LOG
 
     def __answer_phase(self):
         try:
@@ -97,6 +136,9 @@ class Codenames:
         self.__board = Board(self.__is_red_turn, words, language)
         self.__red_bot.set_board(self.__board)
         self.__blue_bot.set_board(self.__board)
+
+    def __initialize_history(self):
+        self.__history = []
 
     def __process_clue(self, clue):
         [clue, ocurrencies] = clue.split(' ')
