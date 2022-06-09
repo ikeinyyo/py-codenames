@@ -78,7 +78,7 @@ class Board:
         random.shuffle(self.__words)
 
     def __load_words(self, language):
-        with open(f"{os.path.dirname(__file__)}/../data/{language}.words.json") as in_file:
+        with open(f"{os.path.dirname(__file__)}/../data/{language}.words.json", encoding='utf8') as in_file:
             words = json.load(in_file)['words']
             random.shuffle(words)
             return words[:25]

@@ -4,6 +4,7 @@ import os
 
 from bots.DistanceBot import DistanceBot
 from bots.RandomBot import RandomBot
+from bots.HypernymBot import HypernymBot
 from codenames import Codenames
 
 
