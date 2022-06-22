@@ -1,1 +1,1 @@
-from .WordNotFoundException import *
+from .word_not_found_exception import *

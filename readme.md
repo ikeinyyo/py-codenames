@@ -114,6 +114,15 @@ When the human give a clue, the application will ask about the words the bot sho
                 "red": [
 ```
 
+## Pylint
+
+Tu run `pylint`, please use the following command:
+
+```sh
+# pylint <path>
+pylint src/
+```
+
 ## Authors
 
 - [José Manuel Pinto](https://github.com/MrDevoid) - Cloud Analytics Consultant
