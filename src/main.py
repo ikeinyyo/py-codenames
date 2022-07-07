@@ -4,12 +4,13 @@ import os
 
 from bots.distance_bot import DistanceBot
 from bots.random_bot import RandomBot
+from bots.hypernym_bot import HypernymBot
 from codenames import Codenames
 
 
 def run_game(log_game):
-    red_bot = RandomBot(is_team_member=True, is_captain=True)
-    blue_bot = DistanceBot(is_team_member=True)
+    red_bot = HypernymBot(is_team_member=True)
+    blue_bot = HypernymBot(is_team_member=True)
     codenames = Codenames(
         red_bot=red_bot, blue_bot=blue_bot, log_history=log_game)
     codenames.play()
