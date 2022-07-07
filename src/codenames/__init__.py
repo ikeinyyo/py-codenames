@@ -1,1 +1,1 @@
-from .Codenames import *
+from .codenames import *

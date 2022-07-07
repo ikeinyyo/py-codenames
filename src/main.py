@@ -2,8 +2,8 @@ import argparse
 import json
 import os
 
-from bots.DistanceBot import DistanceBot
-from bots.RandomBot import RandomBot
+from bots.distance_bot import DistanceBot
+from bots.random_bot import RandomBot
 from codenames import Codenames
 
 
@@ -21,7 +21,7 @@ def save_history(historial):
     path = 'history'
     if not os.path.exists(path):
         os.makedirs(path)
-    with open(os.path.join(path, f"{historial['id']}.json"), 'w') as out_file:
+    with open(os.path.join(path, f"{historial['id']}.json"), 'w', encoding='utf-8') as out_file:
         json.dump(historial, out_file, ensure_ascii=False, indent=4)
 
 
