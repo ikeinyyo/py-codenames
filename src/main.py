@@ -2,14 +2,15 @@ import argparse
 import json
 import os
 
-from bots.DistanceBot import DistanceBot
-from bots.RandomBot import RandomBot
+from bots.distance_bot import DistanceBot
+from bots.random_bot import RandomBot
+from bots.hypernym_bot import HypernymBot
 from codenames import Codenames
 
 
 def run_game(log_game):
-    red_bot = RandomBot(is_team_member=True, is_captain=True)
-    blue_bot = DistanceBot(is_team_member=True)
+    red_bot = HypernymBot(is_team_member=True)
+    blue_bot = HypernymBot(is_team_member=True)
     codenames = Codenames(
         red_bot=red_bot, blue_bot=blue_bot, log_history=log_game)
     codenames.play()
@@ -21,7 +22,7 @@ def save_history(historial):
     path = 'history'
     if not os.path.exists(path):
         os.makedirs(path)
-    with open(os.path.join(path, f"{historial['id']}.json"), 'w') as out_file:
+    with open(os.path.join(path, f"{historial['id']}.json"), 'w', encoding='utf-8') as out_file:
         json.dump(historial, out_file, ensure_ascii=False, indent=4)
 
 

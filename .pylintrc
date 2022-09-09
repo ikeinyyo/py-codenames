@@ -1,0 +1,19 @@
+# https://docs.pylint.org/en/1.6.0/features.html
+[MASTER]
+disable=
+    import-error, 
+    no-name-in-module, 
+    missing-module-docstring,
+    missing-function-docstring, 
+    missing-class-docstring, 
+    global-variable-undefined,
+    broad-except,
+    bare-except,
+    redefined-outer-name,
+    too-few-public-methods,
+    cell-var-from-loop,
+    too-many-instance-attributes,
+    too-many-arguments
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+class-name-hint=[A-Z_][a-zA-Z0-9]+$
+good-names=
